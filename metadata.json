@@ -1,0 +1,6 @@
+{
+  "name": "Nyra",
+  "description": "Professional Android AI Assistant powered by voice, smart app launcher, safe device control, and speech synthesis.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Nyra</string>
+    <string name="accessibility_service_description">Nyra AI Assistant service for hands-free device navigation and assistant commands.</string>
+</resources>
