@@ -73,7 +73,6 @@ import com.example.ui.theme.NyraViolet
 
 @Composable
 fun GoogleSignInScreen(
-    userUid: String,
     onSignInSuccess: (name: String, email: String, photoUrl: String?) -> Unit
 ) {
     val context = LocalContext.current
@@ -151,85 +150,25 @@ fun GoogleSignInScreen(
             Spacer(modifier = Modifier.height(6.dp))
 
             Text(
-                text = "Welcome Boss! One-time Google & Firebase Sign-In",
+                text = "Sign in to activate your profile & 10-Digit User ID",
                 style = MaterialTheme.typography.bodyMedium,
                 color = NyraCyan,
                 textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Assigned Unique 10-Digit UID Card
-            Card(
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFF131A2B)),
-                border = BorderStroke(1.dp, NyraCyan.copy(alpha = 0.4f)),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Fingerprint,
-                            contentDescription = null,
-                            tint = NyraCyan,
-                            modifier = Modifier.size(18.dp)
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(
-                            text = "ASSIGNED UNIQUE USER ID",
-                            fontSize = 11.sp,
-                            color = Color.Gray,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(6.dp))
-
-                    Text(
-                        text = userUid,
-                        fontSize = 24.sp,
-                        color = Color.White,
-                        fontWeight = FontWeight.ExtraBold,
-                        letterSpacing = 2.sp
-                    )
-
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Default.Verified,
-                            contentDescription = null,
-                            tint = NyraEmerald,
-                            modifier = Modifier.size(14.dp)
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            text = "Permanent 10-Digit ID • Linked to Google",
-                            fontSize = 11.sp,
-                            color = NyraEmerald
-                        )
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(28.dp))
 
             // Feature Highlights
             Column(
                 modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                FeatureBulletRow(text = "Sign in ONCE with Google — Never prompts again")
-                FeatureBulletRow(text = "Firebase Auth token auto-saved securely on device")
-                FeatureBulletRow(text = "Personalized voice assistant linked to your 10-digit UID")
+                FeatureBulletRow(text = "Sign in ONCE with Google Account")
+                FeatureBulletRow(text = "Firebase secure authentication token")
+                FeatureBulletRow(text = "Get your personal 10-Digit Unique User ID on login")
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(36.dp))
 
             // MAIN GOOGLE SIGN-IN BUTTON
             Button(
@@ -289,36 +228,6 @@ fun GoogleSignInScreen(
                     }
                 }
             }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Quick One-Tap Sign In
-            OutlinedButton(
-                onClick = {
-                    isSigningIn = true
-                    onSignInSuccess("Boss", "boss@nyra.ai", null)
-                    Toast.makeText(context, "Google Sign-In Successful! Welcome Boss", Toast.LENGTH_SHORT).show()
-                },
-                shape = RoundedCornerShape(14.dp),
-                border = BorderStroke(1.dp, NyraCyan.copy(alpha = 0.5f)),
-                colors = ButtonDefaults.outlinedButtonColors(contentColor = NyraCyan),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp)
-                    .testTag("quick_one_tap_sign_in_button")
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Shield,
-                    contentDescription = null,
-                    modifier = Modifier.size(18.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "1-Tap Quick Google Sign In",
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 14.sp
-                )
-            }
         }
     }
 
@@ -339,7 +248,7 @@ fun GoogleSignInScreen(
                     }
                     Spacer(modifier = Modifier.width(10.dp))
                     Text(
-                        text = "Choose Google Account",
+                        text = "Google Account Authentication",
                         color = Color.White,
                         fontWeight = FontWeight.Bold,
                         fontSize = 18.sp
@@ -349,79 +258,18 @@ fun GoogleSignInScreen(
             text = {
                 Column(modifier = Modifier.fillMaxWidth()) {
                     Text(
-                        text = "Select or enter your Google account to authorize Firebase Auth:",
+                        text = "Enter your Google account details to proceed:",
                         color = Color.Gray,
                         fontSize = 13.sp
                     )
 
                     Spacer(modifier = Modifier.height(14.dp))
 
-                    // Account Option 1 (Default Google Account)
-                    Card(
-                        shape = RoundedCornerShape(12.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color(0xFF22293A)),
-                        border = BorderStroke(1.dp, NyraCyan.copy(alpha = 0.5f)),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .testTag("select_default_google_account_card")
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(12.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.AccountCircle,
-                                contentDescription = null,
-                                tint = NyraCyan,
-                                modifier = Modifier.size(36.dp)
-                            )
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = "Vivek Goswami (Boss)",
-                                    color = Color.White,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 14.sp
-                                )
-                                Text(
-                                    text = "vivekgoswamirk@gmail.com",
-                                    color = NyraCyan,
-                                    fontSize = 12.sp
-                                )
-                            }
-                            Button(
-                                onClick = {
-                                    showAccountChooserDialog = false
-                                    isSigningIn = true
-                                    onSignInSuccess("Vivek Goswami", "vivekgoswamirk@gmail.com", null)
-                                    Toast.makeText(context, "Signed in as vivekgoswamirk@gmail.com", Toast.LENGTH_SHORT).show()
-                                },
-                                shape = RoundedCornerShape(8.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = NyraCyan, contentColor = Color.Black),
-                                modifier = Modifier.testTag("confirm_google_account_btn")
-                            ) {
-                                Text("Sign In", fontWeight = FontWeight.Bold, fontSize = 12.sp)
-                            }
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(14.dp))
-
-                    Text(
-                        text = "Or enter custom Google email:",
-                        color = Color.LightGray,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.SemiBold
-                    )
-
-                    Spacer(modifier = Modifier.height(6.dp))
-
                     OutlinedTextField(
                         value = inputName,
                         onValueChange = { inputName = it },
                         label = { Text("Your Name") },
+                        placeholder = { Text("e.g. Rahul Sharma") },
                         singleLine = true,
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = NyraCyan,
@@ -434,12 +282,13 @@ fun GoogleSignInScreen(
                             .testTag("custom_google_name_input")
                     )
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(10.dp))
 
                     OutlinedTextField(
                         value = inputEmail,
                         onValueChange = { inputEmail = it },
-                        label = { Text("Google Email") },
+                        label = { Text("Google Email ID") },
+                        placeholder = { Text("e.g. user@gmail.com") },
                         singleLine = true,
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = NyraCyan,
@@ -456,17 +305,17 @@ fun GoogleSignInScreen(
             confirmButton = {
                 Button(
                     onClick = {
-                        val finalName = if (inputName.isNotBlank()) inputName else "Boss"
-                        val finalEmail = if (inputEmail.isNotBlank()) inputEmail else "boss@nyra.ai"
+                        val finalName = if (inputName.isNotBlank()) inputName else "User"
+                        val finalEmail = if (inputEmail.isNotBlank()) inputEmail else "user@gmail.com"
                         showAccountChooserDialog = false
                         isSigningIn = true
                         onSignInSuccess(finalName, finalEmail, null)
-                        Toast.makeText(context, "Signed in with Google ($finalEmail)", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Signed in successfully ($finalEmail)", Toast.LENGTH_SHORT).show()
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = NyraCyan, contentColor = Color.Black),
                     modifier = Modifier.testTag("submit_custom_google_account")
                 ) {
-                    Text("Authenticate", fontWeight = FontWeight.Bold)
+                    Text("Sign In with Google", fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {

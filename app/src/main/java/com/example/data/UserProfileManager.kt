@@ -26,8 +26,8 @@ class UserProfileManager(context: Context) {
             val currentDate = SimpleDateFormat("dd MMM yyyy", Locale.getDefault()).format(Date())
             prefs.edit()
                 .putString("user_uid", existingUid)
-                .putString("user_name", "Boss")
-                .putString("user_email", "boss@nyra.ai")
+                .putString("user_name", "User")
+                .putString("user_email", "")
                 .putString("user_tier", "VIP Pro Member")
                 .putString("joined_date", currentDate)
                 .apply()
@@ -37,8 +37,8 @@ class UserProfileManager(context: Context) {
 
     fun getUserProfile(): UserProfile {
         val uid = ensureUidGenerated()
-        val userName = prefs.getString("user_name", "Boss") ?: "Boss"
-        val userEmail = prefs.getString("user_email", "boss@nyra.ai") ?: "boss@nyra.ai"
+        val userName = prefs.getString("user_name", "User") ?: "User"
+        val userEmail = prefs.getString("user_email", "user@gmail.com") ?: "user@gmail.com"
         val userTier = prefs.getString("user_tier", "VIP Pro Member") ?: "VIP Pro Member"
         val joinedDate = prefs.getString("joined_date", "Today") ?: "Today"
         val avatarId = prefs.getInt("avatar_id", 0)
@@ -63,8 +63,8 @@ class UserProfileManager(context: Context) {
         ensureUidGenerated()
         prefs.edit()
             .putBoolean("is_logged_in", true)
-            .putString("user_name", name.ifBlank { "Boss" })
-            .putString("user_email", email.ifBlank { "boss@nyra.ai" })
+            .putString("user_name", name.ifBlank { "User" })
+            .putString("user_email", email.ifBlank { "user@gmail.com" })
             .putString("photo_url", photoUrl)
             .putString("auth_provider", provider)
             .apply()

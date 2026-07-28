@@ -94,7 +94,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             repository.addMessage(
                 sender = "assistant",
-                text = "Welcome Boss $name! Google Sign-In successful. Linked 10-Digit UID: ${_userProfile.value.uid}."
+                text = "Welcome $name! Google Sign-In successful. Your 10-Digit User ID is ${_userProfile.value.uid}."
             )
         }
     }

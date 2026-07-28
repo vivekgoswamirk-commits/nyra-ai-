@@ -99,7 +99,6 @@ fun MainScreen(
     // IF NOT LOGGED IN: Show Google & Firebase Sign-In Screen Gate (App Open One-Time Login)
     if (!userProfile.isLoggedIn) {
         GoogleSignInScreen(
-            userUid = userProfile.uid,
             onSignInSuccess = { name, email, photoUrl ->
                 viewModel.signInWithGoogle(name, email, photoUrl)
             }
