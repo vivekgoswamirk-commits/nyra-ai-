@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -63,9 +64,51 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val isUserBanned: StateFlow<Boolean> = _isUserBanned.asStateFlow()
 
     val apiKeyManager = com.example.data.ApiKeyManager(application)
+    val userProfileManager = com.example.data.UserProfileManager(application)
+
+    private val _userProfile = MutableStateFlow(userProfileManager.getUserProfile())
+    val userProfile: StateFlow<com.example.data.model.UserProfile> = _userProfile.asStateFlow()
+
+    private val _showProfileDialog = MutableStateFlow(false)
+    val showProfileDialog: StateFlow<Boolean> = _showProfileDialog.asStateFlow()
+
+    fun openProfileDialog() {
+        _showProfileDialog.value = true
+    }
+
+    fun dismissProfileDialog() {
+        _showProfileDialog.value = false
+    }
+
+    fun updateUserProfile(name: String, email: String) {
+        userProfileManager.updateUserProfile(name, email)
+        _userProfile.value = userProfileManager.getUserProfile()
+    }
 
     private val _showApiKeyDialog = MutableStateFlow(!apiKeyManager.hasApiKey())
     val showApiKeyDialog: StateFlow<Boolean> = _showApiKeyDialog.asStateFlow()
+
+    private val _isContinuousVoiceMode = MutableStateFlow(true)
+    val isContinuousVoiceMode: StateFlow<Boolean> = _isContinuousVoiceMode.asStateFlow()
+
+    fun toggleContinuousVoiceMode() {
+        val newMode = !_isContinuousVoiceMode.value
+        _isContinuousVoiceMode.value = newMode
+        if (newMode) {
+            if (!speechRecognizer.isListening.value && !_isProcessing.value) {
+                tts.stop()
+                speechRecognizer.startListening()
+            }
+        } else {
+            speechRecognizer.stopListening()
+        }
+    }
+
+    private fun isWakeWordPresent(rawText: String): Boolean {
+        val lower = rawText.lowercase(Locale.getDefault())
+        val keywords = listOf("nyra", "neera", "naira", "nira", "nyna", "hey nyra", "hello nyra", "hi nyra", "ok nyra")
+        return keywords.any { lower.contains(it) }
+    }
 
     fun saveApiKey(key: String) {
         if (key.isNotBlank()) {
@@ -93,12 +136,52 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         refreshPermissions()
         refreshInstalledApps()
 
+        // Continuous Speech Listener Trigger
+        tts.onSpeechCompletedListener = {
+            if (_isContinuousVoiceMode.value && !_isUserBanned.value) {
+                viewModelScope.launch {
+                    kotlinx.coroutines.delay(400)
+                    if (!speechRecognizer.isListening.value && !_isProcessing.value) {
+                        speechRecognizer.startListening()
+                    }
+                }
+            }
+        }
+
+        // Auto-restart continuous listening when STT session finishes or errors out
+        speechRecognizer.onSessionEndedListener = { hasResult ->
+            if (_isContinuousVoiceMode.value && !_isUserBanned.value && !tts.isSpeaking.value && !_isProcessing.value) {
+                viewModelScope.launch {
+                    kotlinx.coroutines.delay(350)
+                    if (!speechRecognizer.isListening.value && !tts.isSpeaking.value && !_isProcessing.value) {
+                        speechRecognizer.startListening()
+                    }
+                }
+            }
+        }
+
         // Observe STT recognized results
         viewModelScope.launch {
             speechRecognizer.recognizedResult.collectLatest { query ->
                 if (query.isNotBlank()) {
-                    _textInput.value = query
-                    sendQuery(query)
+                    if (_isContinuousVoiceMode.value) {
+                        if (isWakeWordPresent(query)) {
+                            _textInput.value = query
+                            sendQuery(query)
+                        } else {
+                            // Ignored background talk because 'Nyra' was not mentioned
+                            _textInput.value = query
+                            viewModelScope.launch {
+                                kotlinx.coroutines.delay(350)
+                                if (!speechRecognizer.isListening.value && !tts.isSpeaking.value && !_isProcessing.value) {
+                                    speechRecognizer.startListening()
+                                }
+                            }
+                        }
+                    } else {
+                        _textInput.value = query
+                        sendQuery(query)
+                    }
                 }
             }
         }
@@ -109,7 +192,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 if (list.isEmpty()) {
                     repository.addMessage(
                         sender = "assistant",
-                        text = "Hello Boss! I am Nyra, your AI assistant. How can I assist you on your device today?"
+                        text = "Hello Boss! Main Nyra hoon, aapki cute aur smart AI assistant. Boliye, aaj main aapki kya madad karoon?"
                     )
                 }
             }
@@ -136,8 +219,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun toggleMicListening() {
         if (speechRecognizer.isListening.value) {
+            _isContinuousVoiceMode.value = false
             speechRecognizer.stopListening()
         } else {
+            _isContinuousVoiceMode.value = true
             tts.stop()
             speechRecognizer.startListening()
         }

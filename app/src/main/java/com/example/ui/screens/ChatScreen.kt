@@ -107,6 +107,7 @@ fun ChatScreen(
     val partialText by viewModel.speechRecognizer.partialText.collectAsState()
     val isProcessing by viewModel.isProcessing.collectAsState()
     val isSpeaking by viewModel.tts.isSpeaking.collectAsState()
+    val isContinuousVoiceMode by viewModel.isContinuousVoiceMode.collectAsState()
     val isUserBanned by viewModel.isUserBanned.collectAsStateWithLifecycle()
 
     val orbState = when {
@@ -146,21 +147,13 @@ fun ChatScreen(
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            // Quick Actions & Suggestions Bar
-            QuickActionChips(
-                onQueryClick = { query ->
-                    viewModel.sendQuery(query)
-                },
-                onSetupClick = {
-                    viewModel.selectTab(1)
-                }
-            )
-
             // Central AI Orb & Status Banner
             CentralOrbHeader(
                 orbState = orbState,
                 rmsLevel = rmsLevel,
                 partialText = partialText,
+                isContinuousVoiceMode = isContinuousVoiceMode,
+                onToggleContinuousMode = { viewModel.toggleContinuousVoiceMode() },
                 onOrbClick = { viewModel.toggleMicListening() }
             )
 
@@ -265,6 +258,8 @@ fun CentralOrbHeader(
     orbState: NyraOrbState,
     rmsLevel: Float,
     partialText: String,
+    isContinuousVoiceMode: Boolean,
+    onToggleContinuousMode: () -> Unit,
     onOrbClick: () -> Unit
 ) {
     val (statusLabel, statusColor) = when (orbState) {
@@ -277,13 +272,47 @@ fun CentralOrbHeader(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp),
+            .padding(vertical = 6.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Futuristic Central AI Orb Canvas with 100+ Particles
+        // Continuous Conversation Mode Badge
+        Surface(
+            shape = RoundedCornerShape(16.dp),
+            color = if (isContinuousVoiceMode) NyraEmerald.copy(alpha = 0.2f) else Color.Gray.copy(alpha = 0.15f),
+            border = BorderStroke(
+                width = 1.dp,
+                color = if (isContinuousVoiceMode) NyraEmerald.copy(alpha = 0.7f) else Color.Gray.copy(alpha = 0.4f)
+            ),
+            modifier = Modifier
+                .clickable { onToggleContinuousMode() }
+                .testTag("toggle_continuous_voice_mode_badge")
+        ) {
+            Row(
+                modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = if (isContinuousVoiceMode) "🎙️ Hands-Free Voice: ON" else "🎙️ Hands-Free Voice: OFF",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = if (isContinuousVoiceMode) NyraEmerald else Color.LightGray,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(
+                    text = "(Tap to toggle)",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = Color.Gray,
+                    fontSize = 10.sp
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(6.dp))
+
+        // Futuristic Central AI Orb Canvas with 120 Particles
         Box(
             modifier = Modifier
-                .size(220.dp)
+                .size(210.dp)
                 .clickable { onOrbClick() }
                 .testTag("nyra_ai_orb_canvas"),
             contentAlignment = Alignment.Center
@@ -291,7 +320,7 @@ fun CentralOrbHeader(
             FuturisticNyraOrbCanvas(
                 state = orbState,
                 rmsLevel = rmsLevel,
-                orbSize = 220.dp
+                orbSize = 210.dp
             )
         }
 
@@ -716,7 +745,7 @@ fun ChatInputBar(
                 onValueChange = onTextChanged,
                 placeholder = {
                     Text(
-                        text = "Type 'Hey Nyra', 'Saree dekhao'...",
+                        text = "Talk or type to Nyra Boss...",
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color(0xFF64748B)
                     )

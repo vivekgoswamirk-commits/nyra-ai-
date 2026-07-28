@@ -65,8 +65,15 @@ class NyraAssistantEngine(private val context: Context) {
         if (lowerQuery == "hey nyra" || lowerQuery == "hello nyra" || lowerQuery == "hi nyra" || lowerQuery == "nyra" ||
             lowerQuery == "hello" || lowerQuery == "hi" || lowerQuery == "hey" || lowerQuery == "namaste") {
             return@withContext AssistantResponse(
-                text = "Namaste Boss! Main Nyra hu. YouTube kholna ho, phone lagana ho ya koi sawaal ho, bataiye kya madad karu?",
+                text = "Hello Boss, kaise ho aap? Main Nyra hoon. Aaj main aapki kis tarah help kar sakti hoon?",
                 actionType = "WAKE_WORD"
+            )
+        }
+
+        if (lowerQuery == "thank you" || lowerQuery == "thanks" || lowerQuery == "dhanyawad" || lowerQuery == "shukriya") {
+            return@withContext AssistantResponse(
+                text = "Koi baat nahi Boss, mujhe aapki help karke accha lagta hai! 😊",
+                actionType = "CHAT"
             )
         }
 
@@ -228,9 +235,9 @@ class NyraAssistantEngine(private val context: Context) {
 
         if (apiKey.isNotBlank() && apiKey != "MY_GEMINI_API_KEY") {
             try {
-                val url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=$apiKey"
+                val url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=$apiKey"
 
-                val systemInstructionText = "You are Nyra, an intelligent, friendly, and ultra-reliable Android AI Assistant. ALWAYS address the user as 'Boss' in every single response. Keep your answers concise, helpful, and natural for speech output. Never perform or promise financial, banking, or password operations."
+                val systemInstructionText = "You are Nyra, a cute, warm, friendly, and ultra-intelligent AI assistant for Android. Always address the user as 'Boss', 'Haan Boss', 'Ji Boss', 'Bilkul Boss', or 'Done Boss'. Respond naturally in a sweet female voice style in Hindi/Hinglish or English. Keep answers concise, conversational, polite, and natural for speech output. Never perform or promise financial, banking, or password operations."
 
                 val jsonPayload = JSONObject().apply {
                     put("systemInstruction", JSONObject().apply {
@@ -289,15 +296,17 @@ class NyraAssistantEngine(private val context: Context) {
         val lower = prompt.lowercase(Locale.getDefault())
         return when {
             lower.contains("hello") || lower.contains("hi") || lower.contains("hey") ->
-                "Hello Boss! How can I assist you on your device today?"
-            lower.contains("who are you") || lower.contains("what is your name") ->
-                "I am Nyra, your personal AI assistant Boss! Ready to open apps, tell the time, and control your device."
-            lower.contains("how are you") ->
-                "I am running at peak performance, Boss! How are you doing today?"
-            lower.contains("thank") ->
-                "You are very welcome, Boss! Always at your service."
+                "Hello Boss! Kaise ho aap? Main Nyra hoon. Aaj main aapki kis tarah help kar sakti hoon?"
+            lower.contains("mausam") || lower.contains("weather") ->
+                "Boss, main check kar rahi hoon. Aaj mausam kaafi accha lag raha hai!"
+            lower.contains("who are you") || lower.contains("kaun ho") || lower.contains("naam kya hai") ->
+                "Main Nyra hoon Boss, aapki cute aur smart AI assistant! Phone calls, apps open karna aur har sawaal ka jawab dene ke liye tayaar hoon."
+            lower.contains("how are you") || lower.contains("kaise ho") ->
+                "Main bilkul acchi hoon Boss! Aap batayein, aaj din kaisa chal raha hai?"
+            lower.contains("thank") || lower.contains("dhanyawad") || lower.contains("shukriya") ->
+                "Koi baat nahi Boss, mujhe aapki help karke accha lagta hai!"
             else ->
-                "Boss, I've processed your request: '$prompt'. Let me know if you need any apps opened or device settings checked!"
+                "Ji Boss, main dekh rahi hoon! Maine aapki baat samajh li hai: '$prompt'. Kya main isme aur koi madad karu?"
         }
     }
 

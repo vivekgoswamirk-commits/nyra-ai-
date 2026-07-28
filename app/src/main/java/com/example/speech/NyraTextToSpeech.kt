@@ -24,6 +24,8 @@ class NyraTextToSpeech(context: Context) : TextToSpeech.OnInitListener {
 
     private var pendingSpeechText: String? = null
 
+    var onSpeechCompletedListener: (() -> Unit)? = null
+
     companion object {
         private const val TAG = "NyraTextToSpeech"
     }
@@ -39,8 +41,8 @@ class NyraTextToSpeech(context: Context) : TextToSpeech.OnInitListener {
                 tts?.setLanguage(Locale.US)
             }
 
-            // Natural female voice settings: pitch 1.20f gives a sweet natural female voice
-            tts?.setPitch(1.20f)
+            // Natural, cute female voice settings: pitch 1.25f gives a sweet, clear female tone
+            tts?.setPitch(1.25f)
             tts?.setSpeechRate(1.00f)
 
             // Try picking an available offline female voice
@@ -61,7 +63,7 @@ class NyraTextToSpeech(context: Context) : TextToSpeech.OnInitListener {
 
                     if (femaleVoice != null) {
                         tts?.voice = femaleVoice
-                        Log.d(TAG, "Selected Female Voice: ${femaleVoice.name}")
+                        Log.d(TAG, "Selected Cute Female Voice: ${femaleVoice.name}")
                     }
                 }
             } catch (e: Exception) {
@@ -75,6 +77,7 @@ class NyraTextToSpeech(context: Context) : TextToSpeech.OnInitListener {
 
                 override fun onDone(utteranceId: String?) {
                     _isSpeaking.value = false
+                    onSpeechCompletedListener?.invoke()
                 }
 
                 @Deprecated("Deprecated in Java")

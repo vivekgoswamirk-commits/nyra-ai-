@@ -34,6 +34,8 @@ class NyraSpeechRecognizer(private val context: Context) : RecognitionListener {
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
 
+    var onSessionEndedListener: ((hasResult: Boolean) -> Unit)? = null
+
     init {
         initRecognizer()
     }
@@ -135,9 +137,18 @@ class NyraSpeechRecognizer(private val context: Context) : RecognitionListener {
             SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> "No speech input received"
             else -> "Speech recognition error"
         }
+        if (error == SpeechRecognizer.ERROR_RECOGNIZER_BUSY || error == SpeechRecognizer.ERROR_CLIENT) {
+            try {
+                speechRecognizer?.destroy()
+            } catch (e: Exception) {
+                Log.e(TAG, "Error destroying recognizer: ${e.message}")
+            }
+            speechRecognizer = null
+        }
         if (error != SpeechRecognizer.ERROR_NO_MATCH && error != SpeechRecognizer.ERROR_SPEECH_TIMEOUT) {
             _errorMessage.value = message
         }
+        onSessionEndedListener?.invoke(false)
     }
 
     override fun onResults(results: Bundle?) {
@@ -148,6 +159,9 @@ class NyraSpeechRecognizer(private val context: Context) : RecognitionListener {
             val text = matches[0]
             _partialText.value = text
             _recognizedResult.tryEmit(text)
+            onSessionEndedListener?.invoke(true)
+        } else {
+            onSessionEndedListener?.invoke(false)
         }
     }
 

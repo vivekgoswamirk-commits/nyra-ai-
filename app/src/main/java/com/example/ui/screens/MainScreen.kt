@@ -78,6 +78,10 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 
+import androidx.compose.foundation.clickable
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Person
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
@@ -87,6 +91,8 @@ fun MainScreen(
     val isMuted by viewModel.tts.isMuted.collectAsState()
     val permissions by viewModel.permissions.collectAsState()
     val showApiKeyDialog by viewModel.showApiKeyDialog.collectAsState()
+    val showProfileDialog by viewModel.showProfileDialog.collectAsState()
+    val userProfile by viewModel.userProfile.collectAsState()
 
     val missingPermCount = permissions.count { !it.isGranted }
 
@@ -98,6 +104,14 @@ fun MainScreen(
         )
     }
 
+    if (showProfileDialog) {
+        UserProfileDialog(
+            profile = userProfile,
+            onSaveProfile = { name, email -> viewModel.updateUserProfile(name, email) },
+            onDismiss = { viewModel.dismissProfileDialog() }
+        )
+    }
+
     Scaffold(
         contentWindowInsets = WindowInsets.safeDrawing,
         topBar = {
@@ -106,7 +120,12 @@ fun MainScreen(
                     containerColor = MaterialTheme.colorScheme.surface
                 ),
                 title = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .clickable { viewModel.openProfileDialog() }
+                            .testTag("topbar_user_profile_header")
+                    ) {
                         Box(
                             modifier = Modifier
                                 .size(36.dp)
@@ -135,15 +154,16 @@ fun MainScreen(
                                     color = NyraEmerald.copy(alpha = 0.2f)
                                 ) {
                                     Text(
-                                        text = "Boss Mode",
+                                        text = "UID: ${userProfile.uid}",
                                         style = MaterialTheme.typography.labelSmall,
                                         color = NyraEmerald,
+                                        fontWeight = FontWeight.Bold,
                                         modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                                     )
                                 }
                             }
                             Text(
-                                text = "Assistant Online • Voice Ready",
+                                text = "${userProfile.userName} • Tap for Profile",
                                 style = MaterialTheme.typography.labelSmall,
                                 color = NyraCyan
                             )
@@ -151,6 +171,17 @@ fun MainScreen(
                     }
                 },
                 actions = {
+                    IconButton(
+                        onClick = { viewModel.openProfileDialog() },
+                        modifier = Modifier.testTag("open_user_profile_button")
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.AccountCircle,
+                            contentDescription = "User Profile",
+                            tint = NyraCyan
+                        )
+                    }
+
                     if (missingPermCount > 0) {
                         IconButton(
                             onClick = { viewModel.selectTab(1) },
