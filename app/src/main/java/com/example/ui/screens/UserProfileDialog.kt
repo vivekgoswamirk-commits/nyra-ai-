@@ -69,6 +69,7 @@ import com.example.ui.theme.NyraViolet
 fun UserProfileDialog(
     profile: UserProfile,
     onSaveProfile: (String, String) -> Unit,
+    onSignOut: () -> Unit = {},
     onDismiss: () -> Unit
 ) {
     val context = LocalContext.current
@@ -350,6 +351,33 @@ fun UserProfileDialog(
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text("Member Since: ", color = Color.Gray, fontSize = 13.sp)
                                 Text(profile.joinedDate, color = Color.White, fontSize = 14.sp)
+                            }
+
+                            Spacer(modifier = Modifier.height(10.dp))
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "Auth: ${profile.authProvider}",
+                                    color = NyraEmerald,
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+
+                                TextButton(
+                                    onClick = onSignOut,
+                                    modifier = Modifier.testTag("user_profile_sign_out_button")
+                                ) {
+                                    Text(
+                                        text = "Sign Out",
+                                        color = Color(0xFFEF4444),
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
                             }
                         }
                     }

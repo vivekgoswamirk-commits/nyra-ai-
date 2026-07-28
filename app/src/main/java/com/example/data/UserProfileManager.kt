@@ -42,6 +42,9 @@ class UserProfileManager(context: Context) {
         val userTier = prefs.getString("user_tier", "VIP Pro Member") ?: "VIP Pro Member"
         val joinedDate = prefs.getString("joined_date", "Today") ?: "Today"
         val avatarId = prefs.getInt("avatar_id", 0)
+        val photoUrl = prefs.getString("photo_url", null)
+        val isLoggedIn = prefs.getBoolean("is_logged_in", false)
+        val authProvider = prefs.getString("auth_provider", "Google / Firebase") ?: "Google / Firebase"
 
         return UserProfile(
             uid = uid,
@@ -49,8 +52,28 @@ class UserProfileManager(context: Context) {
             userEmail = userEmail,
             accountTier = userTier,
             joinedDate = joinedDate,
-            avatarId = avatarId
+            avatarId = avatarId,
+            photoUrl = photoUrl,
+            isLoggedIn = isLoggedIn,
+            authProvider = authProvider
         )
+    }
+
+    fun saveAuthSession(name: String, email: String, photoUrl: String? = null, provider: String = "Google / Firebase") {
+        ensureUidGenerated()
+        prefs.edit()
+            .putBoolean("is_logged_in", true)
+            .putString("user_name", name.ifBlank { "Boss" })
+            .putString("user_email", email.ifBlank { "boss@nyra.ai" })
+            .putString("photo_url", photoUrl)
+            .putString("auth_provider", provider)
+            .apply()
+    }
+
+    fun signOut() {
+        prefs.edit()
+            .putBoolean("is_logged_in", false)
+            .apply()
     }
 
     fun updateUserProfile(userName: String, userEmail: String, avatarId: Int = 0) {

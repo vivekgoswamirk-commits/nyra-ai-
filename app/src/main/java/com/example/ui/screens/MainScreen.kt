@@ -96,6 +96,17 @@ fun MainScreen(
 
     val missingPermCount = permissions.count { !it.isGranted }
 
+    // IF NOT LOGGED IN: Show Google & Firebase Sign-In Screen Gate (App Open One-Time Login)
+    if (!userProfile.isLoggedIn) {
+        GoogleSignInScreen(
+            userUid = userProfile.uid,
+            onSignInSuccess = { name, email, photoUrl ->
+                viewModel.signInWithGoogle(name, email, photoUrl)
+            }
+        )
+        return
+    }
+
     if (showApiKeyDialog) {
         ApiKeySetupDialog(
             currentKey = viewModel.apiKeyManager.getApiKey(),
@@ -108,6 +119,7 @@ fun MainScreen(
         UserProfileDialog(
             profile = userProfile,
             onSaveProfile = { name, email -> viewModel.updateUserProfile(name, email) },
+            onSignOut = { viewModel.signOut() },
             onDismiss = { viewModel.dismissProfileDialog() }
         )
     }

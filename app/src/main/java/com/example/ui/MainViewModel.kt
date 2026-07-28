@@ -85,6 +85,26 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _userProfile.value = userProfileManager.getUserProfile()
     }
 
+    fun signInWithGoogle(name: String, email: String, photoUrl: String? = null) {
+        userProfileManager.saveAuthSession(name, email, photoUrl, "Google / Firebase")
+        _userProfile.value = userProfileManager.getUserProfile()
+        if (email.isNotBlank()) {
+            _currentUserEmail.value = email
+        }
+        viewModelScope.launch {
+            repository.addMessage(
+                sender = "assistant",
+                text = "Welcome Boss $name! Google Sign-In successful. Linked 10-Digit UID: ${_userProfile.value.uid}."
+            )
+        }
+    }
+
+    fun signOut() {
+        userProfileManager.signOut()
+        _userProfile.value = userProfileManager.getUserProfile()
+        _showProfileDialog.value = false
+    }
+
     private val _showApiKeyDialog = MutableStateFlow(!apiKeyManager.hasApiKey())
     val showApiKeyDialog: StateFlow<Boolean> = _showApiKeyDialog.asStateFlow()
 
